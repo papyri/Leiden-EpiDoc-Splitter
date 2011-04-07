@@ -40,7 +40,7 @@ public class EpiDocSplitterTest extends TestCase {
    */
   public void testSplit_File() throws Exception {
     System.out.println("split(File in)");
-    File in = new File("/Users/hcayless/Development/APIS/leidensplitter/src/test/resources/badtext.xml");
+    File in = new File(getClass().getClassLoader().getResource("badtext.xml").toURI());
     EpiDocSplitter instance = new EpiDocSplitter();
     List<String> result = instance.split(in);
     assertEquals(file, instance.join(result));
@@ -51,7 +51,7 @@ public class EpiDocSplitterTest extends TestCase {
    */
   public void testSplit_Reader() throws Exception {
     System.out.println("split(Reader in)");
-    Reader reader = new FileReader(new File("/Users/hcayless/Development/APIS/leidensplitter/src/test/resources/badtext.xml"));
+    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("badtext.xml"));
     EpiDocSplitter instance = new EpiDocSplitter();
     List result = instance.split(reader);
     assertEquals(file, instance.join(result));
@@ -70,8 +70,7 @@ public class EpiDocSplitterTest extends TestCase {
   }
 
   private String loadTestFile() throws Exception {
-    File in = new File("/Users/hcayless/Development/APIS/leidensplitter/src/test/resources/badtext.xml");
-    Reader reader = new FileReader(in);
+    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("badtext.xml"));
     char[] buffer = new char[1024];
     int read = -1;
     StringBuilder file = new StringBuilder();

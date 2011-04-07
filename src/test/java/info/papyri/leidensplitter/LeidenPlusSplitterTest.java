@@ -41,7 +41,7 @@ public class LeidenPlusSplitterTest extends TestCase {
    */
   public void testSplit_File() throws Exception {
     System.out.println("split(File in)");
-    File in = new File("/Users/hcayless/Development/APIS/leidensplitter/src/test/resources/leidenplus.txt");
+    File in = new File(getClass().getClassLoader().getResource("leidenplus.txt").toURI());
     LeidenPlusSplitter instance = new LeidenPlusSplitter();
     List<String> result = instance.split(in);
     assertEquals(file, instance.join(result));
@@ -52,7 +52,7 @@ public class LeidenPlusSplitterTest extends TestCase {
    */
   public void testSplit_Reader() throws Exception {
     System.out.println("split(Reader in)");
-    Reader reader = new FileReader(new File("/Users/hcayless/Development/APIS/leidensplitter/src/test/resources/leidenplus.txt"));
+    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("leidenplus.txt"));
     LeidenPlusSplitter instance = new LeidenPlusSplitter();
     List result = instance.split(reader);
     assertEquals(file, instance.join(result));
@@ -71,8 +71,7 @@ public class LeidenPlusSplitterTest extends TestCase {
   }
 
   private String loadTestFile() throws Exception {
-    File in = new File("/Users/hcayless/Development/APIS/leidensplitter/src/test/resources/leidenplus.txt");
-    Reader reader = new FileReader(in);
+    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("leidenplus.txt"));
     char[] buffer = new char[1024];
     int read = -1;
     StringBuilder file = new StringBuilder();
