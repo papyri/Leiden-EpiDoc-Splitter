@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package info.papyri.leidensplitter;
 
 import java.io.Reader;
@@ -22,7 +17,16 @@ import org.xml.sax.helpers.*;
  * well-formed XML fragments of N lines each (plus a remainder).
  */
 public class EpiDocSplitter {
-  private ArrayList<String> results;
+
+  public EpiDocSplitter() {
+
+  }
+
+  public EpiDocSplitter(int chunkSize) {
+    splitOn = chunkSize;
+  }
+
+  private int splitOn = 20;
 
   public List<String> split(String in) throws Exception {
     return split(new StringReader(in));
@@ -41,7 +45,7 @@ public class EpiDocSplitter {
     xml.setFeature("http://xml.org/sax/features/validation", false );
     InputSource is = new InputSource(reader);
     xml.parse(is);
-    return results;
+    return ((SplitterContentHandler)handler).getResults();
   }
 
   public String join(List<String> in) {
@@ -67,6 +71,7 @@ public class EpiDocSplitter {
   }
   
   private class SplitterContentHandler implements ContentHandler, LexicalHandler {
+    ArrayList<String> results = null;
     private StringBuilder chunk;
     private String currentNS = "";
     private String currentPrefix = "";
@@ -75,8 +80,11 @@ public class EpiDocSplitter {
     private boolean standalone = false;
     private int lineCount = 0;
     private boolean split = false;
-    private int splitOn = 20;
     private char[] nl = new char[] {'☃', '\n'};
+
+    public List<String> getResults() {
+      return results;
+    }
 
     @Override
     public void setDocumentLocator(Locator locator) {

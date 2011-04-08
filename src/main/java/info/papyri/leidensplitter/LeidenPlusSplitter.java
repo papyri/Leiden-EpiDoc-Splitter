@@ -16,23 +16,25 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
- * Hello world!
+ * @author Hugh Cayless
  *
+ * LeidenPlusSplitter takes a Leiden+ style edition div and partitions it into
+ * well-formed fragments of N lines each (plus a remainder).
  */
 public class LeidenPlusSplitter {
 
-  private Deque<String> elements = new ArrayDeque<String>();
-  private Map<String, String> tokens = new HashMap<String, String>();
-  private Map<String, String> tokensRev = new HashMap<String, String>();
-  private Pattern linenum = Pattern.compile("^\\s*[0-9]+[/\\\\,a-zA-Z0-9]*[ms0-9]*\\.");
-  private int linecount = 0;
-  private String[] elts = new String[50];
-  private boolean split = false;
+  private static Map<String, String> tokens = new HashMap<String, String>();
+  private static Map<String, String> tokensRev = new HashMap<String, String>();
+  private static Pattern linenum = Pattern.compile("^\\s*[0-9]+[/\\\\,a-zA-Z0-9]*[ms0-9]*\\.");
   private int splitOn = 20;
-  private String lang;
 
   public LeidenPlusSplitter() {
     init();
+  }
+
+  public LeidenPlusSplitter(int chunkSize) {
+    init();
+    splitOn = chunkSize;
   }
 
   private void init() {
@@ -56,20 +58,6 @@ public class LeidenPlusSplitter {
     }
   }
 
-  public static void main(String[] args) {
-    if (args.length > 0) {
-      LeidenPlusSplitter s = new LeidenPlusSplitter();
-      File in = new File(args[0]);
-      if (in.exists()) {
-        try {
-          System.out.print(s.split(in));
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    }
-  }
-
   public List<String> split(String in) throws Exception{
     return split(new StringReader(in));
   }
@@ -82,6 +70,11 @@ public class LeidenPlusSplitter {
     BufferedReader reader = new BufferedReader(in);
     List<String> result = new ArrayList<String>();
     StringBuilder out = new StringBuilder();
+    Deque<String> elements = new ArrayDeque<String>();
+    String[] elts = new String[50];
+    boolean split = false;
+    int linecount = 0;
+    String lang = "";
     String line = reader.readLine();
     while (line != null) {
       out.append(line);
