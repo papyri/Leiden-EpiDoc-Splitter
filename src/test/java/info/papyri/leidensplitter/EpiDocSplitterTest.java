@@ -6,6 +6,9 @@ package info.papyri.leidensplitter;
 
 import java.io.*;
 import java.util.List;
+import javax.xml.parsers.*;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
 import junit.framework.TestCase;
 
 /**
@@ -17,7 +20,7 @@ public class EpiDocSplitterTest extends TestCase {
   public EpiDocSplitterTest(String testName) {
     super(testName);
     try {
-      file = loadTestFile();
+      file = loadTestFile("badtext.xml");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -40,10 +43,14 @@ public class EpiDocSplitterTest extends TestCase {
    */
   public void testSplit_File() throws Exception {
     System.out.println("split(File in)");
-    File in = new File(getClass().getClassLoader().getResource("badtext.xml").toURI());
+    File in = new File(getClass().getClassLoader().getResource("o.claud.2.372.xml").toURI());
     EpiDocSplitter instance = new EpiDocSplitter();
     List<String> result = instance.split(in);
-    assertEquals(file, instance.join(result));
+    String a = loadTestFile("o.claud.2.372.xml");
+    System.out.println(a);
+    String b = instance.join(result);
+    System.out.println(b);
+    assertEquals(loadTestFile("o.claud.2.372.xml"), instance.join(result));
   }
 
   /**
@@ -68,9 +75,29 @@ public class EpiDocSplitterTest extends TestCase {
     String result = instance.join(in);
     assertEquals(expResult, result);
   }
+  
+  public void testWellFormedness() throws Exception {
+    EpiDocSplitter instance = new EpiDocSplitter();
+    File in = new File(getClass().getClassLoader().getResource("p.panop.beatty.2.xml").toURI());
+    List<String> result = instance.split(in);
+    SAXParserFactory factory = SAXParserFactory.newInstance();
+    String currentChunk = null;
+    try {
+      for (String chunk : result) {
+        currentChunk = chunk;
+        SAXParser p = factory.newSAXParser();
+        p.parse(new InputSource(new StringReader(chunk)), new DefaultHandler());
+      }
+    } catch (Exception e) {
+      System.out.println(currentChunk);
+      e.printStackTrace();
+      assertTrue(false);
+    }
+    assertTrue(true);
+  }
 
-  private String loadTestFile() throws Exception {
-    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("badtext.xml"));
+  private String loadTestFile(String in) throws Exception {
+    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(in));
     char[] buffer = new char[1024];
     int read = -1;
     StringBuilder file = new StringBuilder();
