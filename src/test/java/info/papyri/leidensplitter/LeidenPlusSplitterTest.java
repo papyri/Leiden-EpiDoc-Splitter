@@ -5,6 +5,8 @@
 package info.papyri.leidensplitter;
 
 import java.io.*;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -17,7 +19,7 @@ public class LeidenPlusSplitterTest extends TestCase {
   public LeidenPlusSplitterTest(String testName) {
     super(testName);
     try {
-      file = loadTestFile();
+      file = loadTestFile("leidenplus.txt");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -41,10 +43,18 @@ public class LeidenPlusSplitterTest extends TestCase {
    */
   public void testSplit_File() throws Exception {
     System.out.println("split(File in)");
-    File in = new File(getClass().getClassLoader().getResource("leidenplus.txt").toURI());
+    File in = new File(getClass().getClassLoader().getResource("p.panop.beatty.1.txt").toURI());
     LeidenPlusSplitter instance = new LeidenPlusSplitter();
     List<String> result = instance.split(in);
-    assertEquals(file, instance.join(result));
+    int i = 1;
+    for (String s : result) {
+      File f = new File(new URI(getClass().getClassLoader().getResource("p.panop.beatty.1.txt").toExternalForm().replace(".txt", "-" + i + ".txt")));
+      FileOutputStream out = new FileOutputStream(f);
+      out.write(s.getBytes());
+      out.close();
+      i++;
+    }
+    assertEquals(loadTestFile("p.panop.beatty.1.txt"), instance.join(result));
   }
 
   /**
@@ -70,8 +80,8 @@ public class LeidenPlusSplitterTest extends TestCase {
     assertEquals(expResult, result);
   }
 
-  private String loadTestFile() throws Exception {
-    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream("leidenplus.txt"));
+  private String loadTestFile(String in) throws Exception {
+    Reader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(in));
     char[] buffer = new char[1024];
     int read = -1;
     StringBuilder file = new StringBuilder();

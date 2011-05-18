@@ -26,6 +26,7 @@ public class LeidenPlusSplitter {
   private static Map<String, String> tokens = new HashMap<String, String>();
   private static Map<String, String> tokensRev = new HashMap<String, String>();
   private static Pattern linenum = Pattern.compile("^\\s*[0-9]+[/\\\\,a-zA-Z0-9]*[ms0-9]*\\.");
+  private static Pattern lang = Pattern.compile("^<S=.([-a-zA-Z]+)");
   private int splitOn = 20;
 
   public LeidenPlusSplitter() {
@@ -74,14 +75,15 @@ public class LeidenPlusSplitter {
     String[] elts = new String[50];
     boolean split = false;
     int linecount = 0;
-    String lang = "";
+    String language = "";
     String line = reader.readLine();
     while (line != null) {
       out.append(line);
       String next = reader.readLine();
       if (next != null) out.append("\n");
       if (line.startsWith("<S=")) {
-        lang = line.substring(3, line.indexOf('<', 3));
+        Matcher m = lang.matcher(line);
+        if (m.matches()) language = m.group();
       }
       // figure out stack state at the end of the line
       if (line.length() > elts.length) {
@@ -133,7 +135,7 @@ public class LeidenPlusSplitter {
             String token = i.next();
             out.append(tokensRev.get(token));
             if ("open-div.edition".equals(token)) {
-              out.append(lang);
+              out.append(language);
             }
             if ("open-div".equals(token)) {
               out.append(".fake");
